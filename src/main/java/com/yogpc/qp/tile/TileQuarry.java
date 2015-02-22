@@ -599,13 +599,13 @@ public class TileQuarry extends TileBasic {
   }
 
   private void searchUnbreakableBlocks() {
-    final int xSize = Math.abs(xMax - xMin);
-    final int ySize = yMax;
-    final int zSize = Math.abs(zMax - zMin);
+    final int xSize = Math.abs(xMax - xMin) + 1;
+    final int ySize = yMax + 1;
+    final int zSize = Math.abs(zMax - zMin) + 1;
     unbreakableBlocks = new boolean[xSize][ySize][zSize];
     blockedColumns = new boolean[xSize][zSize];
     for(int x = this.xMin; x <= this.xMax; x++) {
-      for(int y = ySize; y >= this.targetY && y >= 0; y--) { // Idk if this.targetY could go under 0
+      for(int y = yMax; y >= this.targetY && y >= 0; y--) { // Idk if this.targetY could go under 0
         for(int z = this.zMin; z <= this.zMax; z++) {
           final Block b =
               this.worldObj.getChunkProvider().loadChunk(x >> 4, z >> 4) // Copy paste, not my code... so is that right?
