@@ -43,6 +43,9 @@ import com.yogpc.mc_lib.YogpstopPacket;
 import cpw.mods.fml.common.ModAPIManager;
 
 public class TileQuarry extends TileBasic {
+  private boolean[][][] unbreakableBlocks;
+  private boolean[][] blockedColumns;
+  private boolean blockedColumnsNeedUpdate;
   private int targetX, targetY, targetZ;
   public int xMin, xMax, yMin, yMax = Integer.MIN_VALUE, zMin, zMax;
   boolean filler;
@@ -108,7 +111,8 @@ public class TileQuarry extends TileBasic {
           PacketHandler.sendNowPacket(this, this.now);
           return true;
         }
-        if (b == null || h < 0 || b.isAir(this.worldObj, this.targetX, this.targetY, this.targetZ))
+        if (b == null || h < 0 || b.isAir(this.worldObj, this.targetX, this.targetY, this.targetZ)
+            || blockedColumns(this.targetX, this.targetZ))
           return false;
         if (this.pump == ForgeDirection.UNKNOWN && TilePump.isLiquid(b, false, null, 0, 0, 0, 0))
           return false;
@@ -570,6 +574,50 @@ public class TileQuarry extends TileBasic {
     nbttc.setDouble("headPosY", this.headPosY);
     nbttc.setDouble("headPosZ", this.headPosZ);
     nbttc.setBoolean("filler", this.filler);
+  }
+
+  private final boolean[][] blockedColumns() {
+    return blockedColumns(true);
+  }
+  
+  private final boolean blockedColumns(final int x, final int z) {
+    final int xRel = Math.abs(x - xMin);
+    final int zRel = Math.abs(z - zMin);
+    return blockedColumns(true)[xRel][zRel];
+  }
+
+  private final boolean[][] blockedColumns(boolean update) {
+    if(update)
+      searchUnbreakableBlocks();
+    return blockedColumns;
+  }
+
+  private void addUnbreakableBlock(final int x, final int y, final int z) {
+    final int xRel = Math.abs(x - xMin);
+    final int yRel = Math.abs(y - yMin);
+    final int zRel = Math.abs(z - zMin);
+    unbreakableBlocks[xRel][yRel][zRel] = true;
+    if(!blockedColumns(false)[xRel][zRel])
+      blockedColumns[xRel][zRel] = true;
+  }
+
+  private void searchUnbreakableBlocks() {
+    final int xSize = Math.abs(xMax - xMin) + 2;
+    final int ySize = Math.abs(yMax - yMin) + 2;
+    final int zSize = Math.abs(zMax - zMin) + 2;
+    unbreakableBlocks = new boolean[xSize][ySize][zSize];
+    blockedColumns = new boolean[xSize][zSize];
+    for(int x = this.xMin; x <= this.xMax; x++) {
+      for(int y = this.yMax; y >= this.targetY; y--) {
+        for(int z = this.zMin; z <= this.zMax; z++) {
+          final Block b =
+              this.worldObj.getChunkProvider().loadChunk(x >> 4, z >> 4)
+                  .getBlock(x & 0xF, y, z & 0xF);
+          if(b != null && !b.isAir(worldObj, x, y, z) && b.getBlockHardness(worldObj, x, y, z) < 0)
+            addUnbreakableBlock(x, y, z);
+        }
+      }
+    }
   }
 
   public static final byte NONE = 0;
