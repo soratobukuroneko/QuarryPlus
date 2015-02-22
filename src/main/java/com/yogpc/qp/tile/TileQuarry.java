@@ -49,7 +49,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class TileQuarry extends TileBasic {
   private boolean[][][] unbreakableBlocks;
   private boolean[][] blockedColumns;
-  private boolean blockedColumnsNeedUpdate;
   private int targetX, targetY, targetZ;
   public int xMin, xMax, yMin, yMax = Integer.MIN_VALUE, zMin, zMax;
   public boolean filler;
@@ -578,10 +577,6 @@ public class TileQuarry extends TileBasic {
     nbttc.setDouble("headPosZ", this.headPosZ);
     nbttc.setBoolean("filler", this.filler);
   }
-
-  private final boolean[][] blockedColumns() {
-    return blockedColumns(true);
-  }
   
   private final boolean blockedColumns(final int x, final int z) {
     final int xRel = Math.abs(x - xMin);
@@ -597,11 +592,10 @@ public class TileQuarry extends TileBasic {
 
   private void addUnbreakableBlock(final int x, final int y, final int z) {
     final int xRel = Math.abs(x - xMin);
-    final int yRel = Math.abs(y - yMin);
+    final int yRel = y;
     final int zRel = Math.abs(z - zMin);
     unbreakableBlocks[xRel][yRel][zRel] = true;
-    if(!blockedColumns(false)[xRel][zRel])
-      blockedColumns[xRel][zRel] = true;
+    blockedColumns[xRel][zRel] = true;
   }
 
   private void searchUnbreakableBlocks() {
@@ -611,10 +605,10 @@ public class TileQuarry extends TileBasic {
     unbreakableBlocks = new boolean[xSize][ySize][zSize];
     blockedColumns = new boolean[xSize][zSize];
     for(int x = this.xMin; x <= this.xMax; x++) {
-      for(int y = this.yMax; y >= this.targetY; y--) {
+      for(int y = ySize; y >= this.targetY && y >= 0; y--) { // Idk if this.targetY could go under 0
         for(int z = this.zMin; z <= this.zMax; z++) {
           final Block b =
-              this.worldObj.getChunkProvider().loadChunk(x >> 4, z >> 4)
+              this.worldObj.getChunkProvider().loadChunk(x >> 4, z >> 4) // Copy paste, not my code... so is that right?
                   .getBlock(x & 0xF, y, z & 0xF);
           if(b != null && !b.isAir(worldObj, x, y, z) && b.getBlockHardness(worldObj, x, y, z) < 0)
             addUnbreakableBlock(x, y, z);
