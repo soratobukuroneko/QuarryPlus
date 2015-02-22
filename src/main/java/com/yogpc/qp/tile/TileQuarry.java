@@ -605,9 +605,9 @@ public class TileQuarry extends TileBasic {
   }
 
   private void searchUnbreakableBlocks() {
-    final int xSize = Math.abs(xMax - xMin) + 2;
-    final int ySize = Math.abs(yMax - yMin) + 2;
-    final int zSize = Math.abs(zMax - zMin) + 2;
+    final int xSize = Math.abs(xMax - xMin);
+    final int ySize = yMax;
+    final int zSize = Math.abs(zMax - zMin);
     unbreakableBlocks = new boolean[xSize][ySize][zSize];
     blockedColumns = new boolean[xSize][zSize];
     for(int x = this.xMin; x <= this.xMax; x++) {
