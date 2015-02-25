@@ -47,7 +47,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class TileQuarry extends TileBasic {
-  private boolean[][][] unbreakableBlocks;
   private boolean[][] blockedColumns;
   private int targetX, targetY, targetZ;
   public int xMin, xMax, yMin, yMax = Integer.MIN_VALUE, zMin, zMax;
@@ -577,7 +576,7 @@ public class TileQuarry extends TileBasic {
     nbttc.setDouble("headPosZ", this.headPosZ);
     nbttc.setBoolean("filler", this.filler);
   }
-  
+
   private final boolean blockedColumns(final int x, final int z) {
     final int xRel = Math.abs(x - xMin);
     final int zRel = Math.abs(z - zMin);
@@ -590,11 +589,11 @@ public class TileQuarry extends TileBasic {
     return blockedColumns;
   }
 
+  //TODO: if blocked column change from true to false, mine it from the top
   private void addUnbreakableBlock(final int x, final int y, final int z) {
     final int xRel = Math.abs(x - xMin);
     final int yRel = y;
     final int zRel = Math.abs(z - zMin);
-    unbreakableBlocks[xRel][yRel][zRel] = true;
     blockedColumns[xRel][zRel] = true;
   }
 
@@ -602,7 +601,6 @@ public class TileQuarry extends TileBasic {
     final int xSize = Math.abs(xMax - xMin) + 1;
     final int ySize = yMax + 1;
     final int zSize = Math.abs(zMax - zMin) + 1;
-    unbreakableBlocks = new boolean[xSize][ySize][zSize];
     blockedColumns = new boolean[xSize][zSize];
     for(int x = this.xMin; x <= this.xMax; x++) {
       for(int y = yMax; y >= this.targetY && y >= 0; y--) { // Idk if this.targetY could go under 0
