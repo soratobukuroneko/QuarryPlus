@@ -116,8 +116,6 @@ public class TileQuarry extends TileBasic {
         if (b == null || h < 0 || b.isAir(this.worldObj, this.targetX, this.targetY, this.targetZ)
             || blockedColumns(this.targetX, this.targetZ))
           return false;
-        if (this.pump == ForgeDirection.UNKNOWN && TilePump.isLiquid(b, false, null, 0, 0, 0, 0))
-          return false;
         return true;
       case NOTNEEDBREAK:
         if (this.targetY < this.yMin) {
@@ -590,7 +588,7 @@ public class TileQuarry extends TileBasic {
   }
 
   //TODO: if blocked column change from true to false, mine it from the top
-  private void addUnbreakableBlock(final int x, final int y, final int z) {
+  private void addBlockedColumn(final int x, final int y, final int z) {
     final int xRel = Math.abs(x - xMin);
     final int yRel = y;
     final int zRel = Math.abs(z - zMin);
@@ -608,8 +606,9 @@ public class TileQuarry extends TileBasic {
           final Block b =
               this.worldObj.getChunkProvider().loadChunk(x >> 4, z >> 4) // Copy paste, not my code... so is that right?
                   .getBlock(x & 0xF, y, z & 0xF);
-          if(b != null && !b.isAir(worldObj, x, y, z) && b.getBlockHardness(worldObj, x, y, z) < 0)
-            addUnbreakableBlock(x, y, z);
+          if(b != null && !b.isAir(worldObj, x, y, z) && b.getBlockHardness(worldObj, x, y, z) < 0
+        		  || (this.pump == ForgeDirection.UNKNOWN && TilePump.isLiquid(b, false, null, 0, 0, 0, 0)))
+            addBlockedColumn(x, y, z);
         }
       }
     }
