@@ -294,6 +294,9 @@ public class TileQuarry extends TileBasic {
 
   private boolean S_breakBlock() {
     this.digged = true;
+    if (this.targetY >= this.yMin) {
+      worldObj.setBlockToAir(this.targetX, this.targetY, this.targetZ);
+    }
     if (S_breakBlock(this.targetX, this.targetY, this.targetZ)) {
       S_checkDropItem();
       if (this.now == BREAKBLOCK)
